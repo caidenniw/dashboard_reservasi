@@ -393,18 +393,21 @@ export async function FormPesanan({
                                 <div className="form-text">Kalau customer sudah transfer sebelum invoice terbit. Nanti otomatis jadi pembayaran DP di invoice — tidak perlu input dua kali. Kosongkan jika belum ada.</div>
                             </div>
                             <div className="col-md-7 text-right">
-                                <div className="form-text">Sisa setelah panjar: <b className="mono" id="rkSisa">Rp 0</b></div>
+                                <div className="form-text">Sisa setelah panjar: <b className="mono" id="rkSisa" suppressHydrationWarning>Rp 0</b></div>
                             </div>
                         </div>
+                        {/* Semua angka ringkasan di bawah ini diisi app.js (tulis()).
+                            suppressHydrationWarning menjaga hidrasi tetap tenang kalau
+                            skrip itu menulis lebih dulu daripada hidrasi sub-pohon. */}
                         {bolehModal && (
-                            <div className="ringkas-row"><span>Subtotal modal (internal)</span><span className="mono" id="rkModal">Rp 0</span></div>
+                            <div className="ringkas-row"><span>Subtotal modal (internal)</span><span className="mono" id="rkModal" suppressHydrationWarning>Rp 0</span></div>
                         )}
-                        <div className="ringkas-row"><span>Subtotal jual</span><span className="mono" id="rkJual">Rp 0</span></div>
-                        <div className="ringkas-row"><span>Biaya tambahan</span><span className="mono" id="rkTambahan">Rp 0</span></div>
-                        <div className="ringkas-row total"><span>Total Tagihan Customer</span><span className="mono" id="rkTotal">Rp 0</span></div>
-                        <div className="ringkas-row"><span>Panjar</span><span className="mono" id="rkPanjar">Rp 0</span></div>
-                        <div className="ringkas-row total"><span>Sisa Tagihan</span><span className="mono" id="rkSisa2">Rp 0</span></div>
-                        <div className="ringkas-row margin"><span>Margin (internal)</span><span className="mono" id="rkMargin">Rp 0</span></div>
+                        <div className="ringkas-row"><span>Subtotal jual</span><span className="mono" id="rkJual" suppressHydrationWarning>Rp 0</span></div>
+                        <div className="ringkas-row"><span>Biaya tambahan</span><span className="mono" id="rkTambahan" suppressHydrationWarning>Rp 0</span></div>
+                        <div className="ringkas-row total"><span>Total Tagihan Customer</span><span className="mono" id="rkTotal" suppressHydrationWarning>Rp 0</span></div>
+                        <div className="ringkas-row"><span>Panjar</span><span className="mono" id="rkPanjar" suppressHydrationWarning>Rp 0</span></div>
+                        <div className="ringkas-row total"><span>Sisa Tagihan</span><span className="mono" id="rkSisa2" suppressHydrationWarning>Rp 0</span></div>
+                        <div className="ringkas-row margin"><span>Margin (internal)</span><span className="mono" id="rkMargin" suppressHydrationWarning>Rp 0</span></div>
                     </div>
                     <datalist id="listUpgrade">
                         {daftarUpgrade().map((up) => (

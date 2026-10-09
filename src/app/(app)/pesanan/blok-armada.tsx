@@ -38,6 +38,7 @@ export function BlokArmada({
                     type="button"
                     className="btn btn-sm btn-outline-danger btn-hapus-unit"
                     style={total > 1 ? undefined : { display: "none" }}
+                    suppressHydrationWarning
                 >
                     Hapus unit
                 </button>
@@ -47,7 +48,11 @@ export function BlokArmada({
                 <div className="form-sub">Driver</div>
                 <div>
                     <label className="form-label">Driver <span className="wajib">*</span></label>
-                    <select className="form-select pilih-driver" name="item_driver_id[]" aria-label="Driver" required defaultValue={String(it.driver_id ?? "")}>
+                    {/* suppressHydrationWarning: app.js menulis atribut data-prev-* ke
+                        elemen ini saat ia dijalankan. Kalau React masih menghidrasi
+                        sub-pohon halaman ketika itu terjadi (hidrasi selektif Next),
+                        perbedaannya bukan bug — DOM memang milik skrip lama. */}
+                    <select className="form-select pilih-driver" name="item_driver_id[]" aria-label="Driver" required defaultValue={String(it.driver_id ?? "")} suppressHydrationWarning>
                         <option value="">-- pilih driver --</option>
                         {drivers.map((dv) => (
                             <option key={String(dv.id)} value={String(dv.id)} data-nama={String(dv.nama ?? "")} data-hp={String(dv.hp ?? "")}>
@@ -69,7 +74,7 @@ export function BlokArmada({
                 <div className="form-sub">Kendaraan</div>
                 <div>
                     <label className="form-label">Unit</label>
-                    <select className="form-select pilih-unit" name="item_unit_id[]" aria-label="Unit" defaultValue={String(it.unit_id ?? "")}>
+                    <select className="form-select pilih-unit" name="item_unit_id[]" aria-label="Unit" defaultValue={String(it.unit_id ?? "")} suppressHydrationWarning>
                         <option value="">-- pilih unit --</option>
                         {units.map((un) => (
                             <option
@@ -122,7 +127,7 @@ export function BlokArmada({
                                 defaultValue={adaModal ? rupiah(hargaModal as number, false) : ""}
                             />
                         </div>
-                        <div className="unit-sub"><span>Subtotal modal</span><span className="sub-modal">Rp 0</span></div>
+                        <div className="unit-sub"><span>Subtotal modal</span><span className="sub-modal" suppressHydrationWarning>Rp 0</span></div>
                     </div>
                 ) : (
                     /* peran reservasi/finance: kolom modal disembunyikan; nilai tetap dikirim dari master */
@@ -140,7 +145,7 @@ export function BlokArmada({
                             defaultValue={hargaJual !== "" && hargaJual !== null ? rupiah(hargaJual as number, false) : ""}
                         />
                     </div>
-                    <div className="unit-sub"><span>Subtotal jual</span><span className="sub-jual">Rp 0</span></div>
+                    <div className="unit-sub"><span>Subtotal jual</span><span className="sub-jual" suppressHydrationWarning>Rp 0</span></div>
                 </div>
                 <div>
                     <label className="form-label">Hari (per unit)</label>
