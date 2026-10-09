@@ -1,0 +1,174 @@
+/* Halaman Beranda (Peta Modul) & Ketersediaan — gaya mengikuti tema.
+   Tanpa animasi masuk; semua warna lewat token di app.css.
+   Catatan: .periode-bar/.periode-chip/.panel-head tinggal di app.css
+   supaya lintas halaman tidak menyalin ulang. */
+
+/* =====================================================================
+   PETA MODUL — kartu peluncur menu (Beranda)
+   ===================================================================== */
+.modul-seksi { margin-bottom: 26px; }
+.modul-seksi-judul {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 12px;
+}
+.modul-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+.modul-kartu {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--motion-med) ease, box-shadow var(--motion-med) ease, transform var(--motion-med) ease;
+}
+.modul-kartu:hover {
+    border-color: var(--primary-ring);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.modul-kartu:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.modul-atas {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.modul-ikon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    border: 1px solid var(--line-subtle);
+    color: var(--primary);
+}
+.modul-panah {
+    color: var(--ink-faint);
+    transition: color var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+.modul-kartu:hover .modul-panah { color: var(--primary); transform: translate(1px, -1px); }
+.modul-judul { font-size: 15.5px; font-weight: 700; color: var(--ink); letter-spacing: -.15px; }
+.modul-desc { font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
+.modul-buka {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    font-size: 12.5px;
+    font-weight: 650;
+    color: var(--primary);
+}
+.modul-kartu:hover .modul-buka { text-decoration: underline; text-underline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .modul-kartu:hover { transform: none; }
+}
+@media (max-width: 576px) {
+    .modul-grid { grid-template-columns: 1fr; }
+}
+
+/* =====================================================================
+   FILTER PERIODE & FORM (halaman Ketersediaan)
+   ===================================================================== */
+.periode-form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 14px; }
+.periode-form label { font-size: 12.5px; color: var(--ink-soft); margin: 0; }
+.periode-form input[type="date"] { max-width: 168px; }
+
+/* angka pada tabel & ringkasan sejajar rapi */
+.tabel .num, .ringkas-row span { font-variant-numeric: tabular-nums; }
+
+/* =====================================================================
+   KALENDER — papan ketersediaan unit & driver.
+   Kisi padat, digeser horizontal di layar kecil; header tanggal nempel
+   di atas, kolom nama unit/driver nempel di kiri.
+   ===================================================================== */
+.kal-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+}
+.kal-tabel { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: 12px; }
+.kal-tabel th, .kal-tabel td { border-bottom: 0; padding: 3px 4px; text-align: center; }
+/* Sticky thead/unit di dalam scroll tabel — z 1/2/3 lokal tabel,
+   bukan bagian skala global --z-*. */
+.kal-tabel thead th {
+    background: transparent; color: var(--ink-soft); font-weight: 600; font-size: 12px;
+    position: sticky; top: 0; z-index: 2; white-space: nowrap;
+}
+.kal-tabel thead th span { display: block; font-weight: 400; font-size: 12px; }
+/* --danger-ink (bukan --primary): merah di atas --primary-subtle hanya ~4.4:1
+   di tema terang dan ~4.0:1 di tema gelap untuk teks 12px. */
+.kal-tabel th.kal-libur { color: var(--danger-ink); background: var(--primary-subtle); }
+.kal-tabel td.kal-unit, .kal-tabel th.kal-unit {
+    text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1;
+    min-width: 168px; white-space: nowrap; border-right: 0;
+}
+.kal-tabel th.kal-unit { z-index: 3; }
+.kal-tabel tr:last-child td { border-bottom: 0; }
+.kal-nama { display: block; color: var(--ink-soft); font-size: 12px; }
+.kal-nama-driver { display: block; font-weight: 600; font-size: 12px; color: var(--ink); }
+/* Subjudul "Ketersediaan driver" — setingkat judul kartu, bukan heading besar. */
+.kal-subjudul { font-size: 14px; font-weight: 650; color: var(--ink); margin: 20px 0 4px; }
+
+/* Sel: kotak kecil. Warna pengisian datang sebagai inline style (data dari
+   config warna reservasi) — jangan diganti. Latar kosong pakai token. */
+.kal-sel {
+    display: block; width: 100%; min-width: 20px; height: 18px;
+    border-radius: var(--radius-ctl); background: var(--surface-2);
+    font-variant-numeric: tabular-nums;
+}
+.kal-sel.isi { background: var(--primary-fill); opacity: .85; }
+.kal-sel.isi:hover { opacity: 1; }
+/* Entri manual: kuning amber, sengaja BUKAN emas dokumen (--accent-gold).
+   Amber = tindakan manual; emas = status dokumen formal. */
+.kal-sel.manual { background: #f59e0b; opacity: .9; }
+.kal-sel.manual:hover { opacity: 1; }
+/* teks label di dalam kotak berwarna — warna teks dipisah per latar:
+   putih di atas merah = 5.07:1, tapi putih di atas amber hanya 2.15:1 (gagal),
+   jadi entri manual memakai teks gelap (8.49:1). */
+.kal-sel.isi, .kal-sel.manual {
+    font-size: 12px; line-height: 18px; text-align: center;
+    font-weight: 600; text-decoration: none; white-space: nowrap; overflow: hidden;
+}
+.kal-sel.isi    { color: var(--on-primary); }
+.kal-sel.manual { color: #1a1410; }
+
+/* Legenda warna: satu baris ringkas di bawah form cari. */
+.kal-legenda-baris { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 2px 0 4px; font-size: 12px; color: var(--ink-soft); }
+.kal-legenda { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-soft); }
+.kal-tanda { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--surface-3); }
+/* Penanda "warna = yang menangani" — kotak bergaris, bukan warna solid. */
+.kal-tanda-garis { background: transparent; border: 1px dashed var(--line-strong); }
+/* Amber, BUKAN emas: amber = tindakan manual, emas = status dokumen formal.
+   Sejak "lunas/selesai" juga emas, penanda manual berwarna emas akan tertukar
+   artinya dengan "Lunas". */
+.kal-tag-manual {
+    display: inline-block; font-size: 12px; color: var(--st-tunggu);
+    background: var(--st-tunggu-bg); border: 1px solid var(--st-tunggu-line);
+    border-radius: var(--radius-ctl); padding: 0 4px; margin-left: 5px;
+}
+/* Lebar kolom cari unit (menggantikan inline max-width). */
+.kolom-cari { max-width: 220px; }
+
+/* Di layar sempit, kolom nama sedikit dirapatkan supaya lebih banyak tanggal
+   ikut terlihat sebelum digeser; header tetap nempel. */
+@media (max-width: 576px) {
+    .kal-tabel td.kal-unit, .kal-tabel th.kal-unit { min-width: 132px; }
+}

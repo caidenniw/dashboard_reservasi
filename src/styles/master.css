@@ -1,0 +1,26 @@
+/* Gaya lokal halaman Data Master.
+   Dipindahkan apa adanya dari @push('gaya') di resources/views/master/index.blade.php
+   (aplikasi Laravel) supaya tampilan tetap sama. Aturan .alert-validasi sengaja
+   mempertahankan garis kiri merah — itu bagian dari desain aplikasi lama. */
+
+.alert-validasi { border-left: 3px solid var(--danger); }
+.alert-validasi .alert-judul { display: block; font-weight: 650; margin-bottom: 6px; }
+.alert-validasi .alert-daftar { margin: 0; padding-left: 18px; }
+.alert-validasi .alert-daftar li + li { margin-top: 2px; }
+
+/* Aksi per baris tabel: rapat, sejajar, tanpa jarak liar dari <form>. */
+.baris-aksi-tabel { gap: 6px; align-items: center; }
+.baris-aksi-tabel > form { margin: 0; }
+
+/* Bingkai foto (driver) memakai token, bukan inline style. */
+.thumb-form, .thumb-tabel {
+    display: block;
+    object-fit: cover;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+}
+.thumb-form { height: 64px; width: 64px; border-radius: var(--radius-card); }
+.thumb-tabel { height: 38px; width: 38px; border-radius: var(--radius-ctl); }
+
+/* Nilai panjang di kartu HP tetap boleh turun baris, kolom angka tetap rata kanan. */
+table.tabel.kartu-hp td { word-break: break-word; }

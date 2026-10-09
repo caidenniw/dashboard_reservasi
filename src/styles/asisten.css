@@ -1,0 +1,88 @@
+/* Asisten internal dashboard 1000 Nusantara Rental
+   Gaya minimal mengikuti tema (aksen merah korporat). Tanpa animasi. */
+
+.rna-btn {
+    position: fixed; right: 22px; bottom: 22px; z-index: var(--z-toast);
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--primary-fill); color: var(--on-primary); border: 0; border-radius: var(--radius-pill);
+    padding: 11px 16px; font: 600 13px/1 'Inter', system-ui, sans-serif;
+    box-shadow: var(--shadow-md); cursor: pointer;
+    transition: background-color var(--motion-fast) ease;
+}
+.rna-btn svg { flex: 0 0 auto; display: block; }
+.rna-btn:hover { background: var(--primary-d); }
+.rna-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.rna-panel {
+    position: fixed; right: 22px; bottom: 78px; z-index: var(--z-tooltip);
+    width: 440px; max-width: calc(100vw - 32px);
+    max-height: min(660px, calc(100vh - 130px));
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-lg);
+    display: none; flex-direction: column; overflow: hidden;
+}
+.rna-panel.rna-open { display: flex; }
+
+.rna-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.rna-head-info { display: flex; align-items: flex-start; gap: 9px; }
+.rna-head-ikon { color: var(--primary); display: inline-flex; margin-top: 1px; }
+.rna-head-t { font-weight: 650; font-size: 14px; }
+.rna-head-s { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+.rna-x {
+    border: 0; background: transparent; font-size: 20px; line-height: 1; color: var(--ink-soft); cursor: pointer; border-radius: var(--radius-ctl);
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 44px; min-height: 44px;
+}
+.rna-x:hover { color: var(--ink); }
+
+.rna-body { padding: 12px 14px; overflow-y: auto; flex: 1; }
+.rna-msg { font-size: 13px; line-height: 1.55; margin-bottom: 10px; white-space: pre-wrap; word-wrap: break-word; }
+.rna-msg-user { background: var(--primary-subtle); border: 1px solid var(--line); border-radius: var(--radius-card); padding: 8px 10px; }
+.rna-msg-bot { color: var(--ink); }
+.rna-msg-info { color: var(--ink-soft); font-size: 12.5px; }
+.rna-msg-err { color: var(--danger); }
+.rna-meta { font-size: 12px; color: var(--ink-soft); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line-subtle); }
+
+/* hasil jawaban asisten: baris data yang rapi, bukan paragraf padat */
+.rna-p { margin: 0 0 6px; white-space: pre-wrap; }
+.rna-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px;
+    padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.rna-row:last-child { border-bottom: 0; padding-bottom: 2px; }
+.rna-f { font-size: 12.5px; color: var(--ink-soft); }
+.rna-f-utama { color: var(--ink); font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .2px; }
+.rna-f-angka { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
+.rna-kv { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding: 4px 0; font-size: 12.5px; border-bottom: 1px dashed var(--line); }
+.rna-kv:last-child { border-bottom: 0; }
+.rna-k { color: var(--ink-soft); flex: 0 0 auto; }
+.rna-v { color: var(--ink); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+.rna-form { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.rna-input { flex: 1; border: 1px solid var(--line-strong); border-radius: var(--radius-ctl); padding: 9px 11px;
+    font: 400 13px 'Inter', system-ui, sans-serif; resize: none;
+    background: var(--surface); color: var(--ink); }
+.rna-input::placeholder { color: var(--ink-faint); }
+.rna-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-ring); }
+.rna-send { border: 0; background: var(--primary-fill); color: var(--on-primary); border-radius: var(--radius-ctl);
+    padding: 0 14px; font: 600 13px 'Inter', system-ui, sans-serif; cursor: pointer;
+    transition: background-color var(--motion-fast) ease; }
+.rna-send:hover { background: var(--primary-d); }
+.rna-send:disabled { opacity: .55; cursor: default; }
+
+.rna-chip { display: inline-block; border: 1px solid var(--line); border-radius: var(--radius-pill);
+    padding: 4px 10px; font-size: 12px; color: var(--ink-soft); background: var(--surface);
+    cursor: pointer; margin: 0 6px 6px 0;
+    transition: border-color var(--motion-fast) ease, color var(--motion-fast) ease; }
+.rna-chip:hover { border-color: var(--primary); color: var(--primary); }
+
+/* halaman penuh */
+.rna-page { max-width: 860px; }
+.rna-page .rna-chat { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); overflow: hidden; }
+.rna-page .rna-body { max-height: 62vh; min-height: 320px; }
+.rna-page .rna-note { padding: 0 14px 12px; font-size: 12px; color: var(--ink-soft); }
+
+@media (max-width: 575.98px) {
+    .rna-panel { right: 10px; left: 10px; width: auto; bottom: 74px; }
+    .rna-btn { right: 14px; bottom: 14px; }
+}

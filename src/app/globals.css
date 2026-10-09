@@ -1,0 +1,70 @@
+/* =====================================================================
+   Titik masuk CSS aplikasi — Tailwind v4 sebagai MESIN, bukan sebagai tema.
+
+   Lapis (cascade layer) menentukan siapa menang:
+     theme < base < components < utilities
+   - theme      : token Tailwind (warna/jarak/breakpoint/teks).
+   - base       : reboot Bootstrap — nilai dasar yang selama ini membentuk
+                  tampilan (list-style daftar, margin <p>/<hr>, warna link,
+                  font-size kontrol form). Preflight Tailwind SENGAJA tidak
+                  diimpor supaya nilai-nilai itu tidak berubah.
+   - components      : design system proyek (app.css dkk). Menang atas Bootstrap,
+                  jadi praktis Bootstrap kini hanya jadi default.
+   - utilities  : utility Tailwind di markup — selalu menang.
+
+   Token warna tidak diduplikasi: @theme menunjuk balik ke custom property
+   di app.css, jadi pertukaran tema ([data-bs-theme]) tetap hidup.
+   ===================================================================== */
+
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@import "../styles/app.css" layer(components);
+@import "../styles/beranda.css" layer(components);
+@import "../styles/master.css" layer(components);
+@import "../styles/pesanan.css" layer(components);
+@import "../styles/asisten.css" layer(components);
+
+/* ---------- Token Tailwind → custom property runtime ----------
+   `inline` = utility menulis var(...) langsung, bukan menyalin nilainya,
+   sehingga pertukaran tema lewat [data-bs-theme] ikut terbaca. */
+@theme inline {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-surface-3: var(--surface-3);
+    --color-line: var(--line);
+    --color-line-strong: var(--line-strong);
+    --color-line-subtle: var(--line-subtle);
+    --color-ink: var(--ink);
+    --color-ink-soft: var(--ink-soft);
+    --color-ink-faint: var(--ink-faint);
+    --color-primary: var(--primary);
+    --color-primary-fill: var(--primary-fill);
+    --color-primary-d: var(--primary-d);
+    --color-on-primary: var(--on-primary);
+    --color-danger: var(--danger);
+    --color-danger-ink: var(--danger-ink);
+    --color-danger-soft: var(--danger-soft);
+    --color-danger-line: var(--danger-line);
+    --color-primary-subtle: var(--primary-subtle);
+
+    /* Breakpoint Bootstrap 5. app.css memakai 991/767/576px; skala Tailwind
+       diganti supaya lg:/md:/sm: tidak menyimpang dari media query lama. */
+    --breakpoint-sm: 576px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 992px;
+    --breakpoint-xl: 1200px;
+    --breakpoint-2xl: 1400px;
+}
+
+/* Varian gelap mengikuti atribut tema dari skrip anti-FOUC. */
+@custom-variant dark (&:where([data-bs-theme="dark"], [data-bs-theme="dark"] *));
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+}
