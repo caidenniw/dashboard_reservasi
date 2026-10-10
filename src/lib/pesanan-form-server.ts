@@ -267,8 +267,8 @@ export async function simpanPesanan(form: FormData, user: SesiUser): Promise<Has
         totalJualTmp += it.subtotal_jual;
     }
     let incTmp = 0;
-    for (const iid of form.getAll("include_id")) {
-        incTmp += angka(form.get(`include_biaya.${Number(iid)}`) ?? 0);
+    for (const iid of form.getAll("include_id[]")) {
+        incTmp += angka(form.get(`include_biaya[${Number(iid)}]`) ?? 0);
     }
     let biayaTmp = 0;
     for (const nom of form.getAll("biaya_nominal[]")) {
@@ -463,7 +463,7 @@ export async function simpanPesanan(form: FormData, user: SesiUser): Promise<Has
                 );
             }
 
-            for (const iidRaw of form.getAll("include_id")) {
+            for (const iidRaw of form.getAll("include_id[]")) {
                 const iid = Number(iidRaw);
                 const nm = (await conn.query("SELECT nama FROM includes WHERE id = ? LIMIT 1", [iid]))[0] as Array<{ nama: string }>;
                 if (!nm[0]?.nama) {
@@ -471,7 +471,7 @@ export async function simpanPesanan(form: FormData, user: SesiUser): Promise<Has
                 }
                 await conn.query(
                     "INSERT INTO order_includes (order_id, include_id, nama, biaya) VALUES (?,?,?,?)",
-                    [oid, iid, nm[0].nama, angka(form.get(`include_biaya.${iid}`) ?? 0)],
+                    [oid, iid, nm[0].nama, angka(form.get(`include_biaya[${iid}]`) ?? 0)],
                 );
             }
 
