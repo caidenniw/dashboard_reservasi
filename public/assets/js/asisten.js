@@ -197,12 +197,14 @@
                 };
                 var tutup = function () {
                     panel.classList.remove('rna-open');
+                    panel.setAttribute('aria-hidden', 'true');
                     pemicu.setAttribute('aria-expanded', 'false');
                     pemicu.focus();
                 };
                 pemicu.addEventListener('click', function () {
                     if (panel.classList.contains('rna-open')) { tutup(); return; }
                     panel.classList.add('rna-open');
+                    panel.setAttribute('aria-hidden', 'false');
                     pemicu.setAttribute('aria-expanded', 'true');
                     input.focus();
                 });

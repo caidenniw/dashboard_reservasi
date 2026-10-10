@@ -1,34 +1,43 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import type { ItemMenu } from "@/config/menu";
+import { jejakMenu } from "@/config/menu";
+import { metaRute } from "@/config/rute";
+import { APP_SUB } from "@/lib/brand";
 
 /*
  * Remah navigasi di topbar. Rantai diambil dari config/menu (`jejak`), sedangkan
- * judul halaman datang dari `judulAwal` (meta.rute) dan bisa ditimpa halaman
- * lewat <JudulHalaman nilai="..." /> (event rn:judul).
+ * judul halaman datang dari `judulAwal` (meta.rute). Halaman bisa menimpa lewat
+ * event `rn:judul` (pendengar di bawah) — komponen JudulHalaman pelopornya
+ * sudah dihapus karena tak lagi dipakai halaman mana pun.
  *
  * Remah terakhir memakai kelas `page-title`: public/assets/js/app.js membacanya
  * untuk konteks modal konfirmasi (nomor order / nama halaman).
  */
 
-/** Dirender halaman untuk menetapkan judul topbar. */
-export function JudulHalaman({ nilai }: { nilai: string }) {
-    useEffect(() => {
-        window.dispatchEvent(new CustomEvent("rn:judul", { detail: nilai }));
-    }, [nilai]);
-    return null;
-}
 
-/** Ditampilkan topbar; remah terakhir adalah judul halaman aktif. */
-export function TampilJudul({ jejak, judulAwal }: { jejak: ItemMenu[]; judulAwal: string }) {
+
+
+/* Ditampilkan topbar; remah terakhir adalah judul halaman aktif.
+   Jejak & judul dihitung dari pathname klien — layout tak re-render saat soft
+   nav (Router Cache memakai ulang segmen layout), prop server jadi basi. */
+export function TampilJudul() {
     const path = usePathname();
+    const judulAwal = metaRute(path).judul;
+    const jejak = jejakMenu(metaRute(path).menu);
     const [judul, setJudul] = useState(judulAwal);
 
     /* Rute berganti di klien: judul kembali ke bawaan rute baru. */
     useEffect(() => {
         setJudul(judulAwal);
+    }, [judulAwal]);
+
+    /* Metadata Next (generateMetadata) telat satu langkah saat soft nav karena
+       cache Router — sinkronkan tab langsung; format = template root layout. */
+    useEffect(() => {
+        document.title = `${judulAwal} · ${APP_SUB}`;
     }, [judulAwal]);
 
     useEffect(() => {
@@ -72,7 +81,7 @@ export function TampilJudul({ jejak, judulAwal }: { jejak: ItemMenu[]; judulAwal
                     {i === remah.length - 1 ? (
                         <span className="page-title remah-kini">{r.label}</span>
                     ) : r.href !== "" ? (
-                        <a className="remah-taut" href={r.href}>{r.label}</a>
+                        <Link className="remah-taut" href={r.href}>{r.label}</Link>
                     ) : (
                         <span className="remah-grup">{r.label}</span>
                     )}

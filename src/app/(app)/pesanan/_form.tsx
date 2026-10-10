@@ -343,8 +343,8 @@ export async function FormPesanan({
 
                     <div className="row g-4">
                         <div className="col-md-6">
-                            <div className="form-label">Biaya Tambahan</div>
-                            <div id="wadahBiaya">
+                            <div className="form-label" id="labelBiaya">Biaya Tambahan</div>
+                            <div id="wadahBiaya" role="group" aria-labelledby="labelBiaya">
                                 {biaya.map((b, i) => (
                                     <div className="flex gap-2 mb-2 baris-biaya" key={i}>
                                         <input type="text" className="form-control form-control-sm" name="biaya_nama[]" aria-label="Nama biaya" defaultValue={String(b.nama ?? "")} placeholder="nama biaya" />
@@ -356,7 +356,8 @@ export async function FormPesanan({
                             <button type="button" className="btn btn-sm btn-outline-secondary mt-1" id="btnTambahBiaya">+ Tambah biaya</button>
                         </div>
                         <div className="col-md-6">
-                            <div className="form-label">Include</div>
+                            <div className="form-label" id="labelInclude">Include</div>
+                            <div role="group" aria-labelledby="labelInclude">
                             {data.includes.map((inc) => {
                                 const iid = Number(inc.id);
                                 const terpilih = data.includeTerpilih[iid];
@@ -379,6 +380,7 @@ export async function FormPesanan({
                                 );
                             })}
                             <div className="form-text">Biaya include diisi hanya kalau dibebankan sebagai tambahan.</div>
+                            </div>
                         </div>
                     </div>
 
@@ -393,7 +395,10 @@ export async function FormPesanan({
                                 <div className="form-text">Kalau customer sudah transfer sebelum invoice terbit. Nanti otomatis jadi pembayaran DP di invoice — tidak perlu input dua kali. Kosongkan jika belum ada.</div>
                             </div>
                             <div className="col-md-7 text-right">
-                                <div className="form-text">Sisa setelah panjar: <b className="mono" id="rkSisa" suppressHydrationWarning>Rp 0</b></div>
+                                <div className="form-text">Sisa akhir tampil di ringkasan di bawah.</div>
+                                {/* id tetap di DOM untuk hook skrip lama (app.js menulis ke sini);
+                                    disembunyikan supaya angka sisa tidak tampil dobel. */}
+                                <b id="rkSisa" hidden suppressHydrationWarning>Rp 0</b>
                             </div>
                         </div>
                         {/* Semua angka ringkasan di bawah ini diisi app.js (tulis()).

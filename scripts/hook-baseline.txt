@@ -23,7 +23,6 @@ data-rna-root
 data-rna-saran
 data-rna-send
 data-row
-data-url
 id="@"
 id="acuan"
 id="asal_user_raw"

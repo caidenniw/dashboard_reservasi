@@ -47,9 +47,10 @@ export const CSS_MODERN = String.raw`
         }
 
         /* ===== PRATINJAU DALAM IFRAME (?embed=1) ===== */
-        .inv-root.embed { min-height: 100vh; background: #fff; }
+        .inv-root.embed { min-height: 100vh; background: #fff; overflow: auto; }
         .inv-root.embed .no-print { display: none !important; }
-        .inv-root.embed .invoice-page { width: 100%; min-height: 0; margin: 0; box-shadow: none; padding: 5mm 6mm; zoom: .55; }
+        /* Tanpa zoom: .55 mengecilkan teks di bawah skala baca & blur pinch-zoom. */
+        .inv-root.embed .invoice-page { width: 100%; min-height: 0; margin: 0; box-shadow: none; padding: 5mm 6mm; }
 
         /* ===== TAMPILAN HP ===== */
         @media screen and (max-width: 768px) {

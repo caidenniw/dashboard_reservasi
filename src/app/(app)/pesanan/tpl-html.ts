@@ -11,14 +11,14 @@ export const TPL_RUTE = `
     <div class="col-md-3"><input type="text" class="form-control form-control-sm" name="rute_ke[]" aria-label="Rute ke" placeholder="ke (kota)"></div>
     <div class="col-md-2"><input type="date" class="form-control form-control-sm" name="rute_tgl[]" aria-label="Tanggal rute"><span class="bantu-tanggal">dd/mm/yyyy</span></div>
     <div class="col-md-2"><input type="text" class="form-control form-control-sm" name="rute_jam[]" aria-label="Jam rute" placeholder="jam (opsional)"></div>
-    <div class="col-md-2 d-flex gap-1">
+    <div class="col-md-2 flex gap-1">
         <input type="text" class="form-control form-control-sm" name="rute_catatan[]" aria-label="Catatan rute" placeholder="catatan">
         <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-rute" aria-label="Hapus rute">x</button>
     </div>
 </div>`;
 
 export const TPL_BIAYA = `
-<div class="d-flex gap-2 mb-2 baris-biaya">
+<div class="flex gap-2 mb-2 baris-biaya">
     <input type="text" class="form-control form-control-sm" name="biaya_nama[]" aria-label="Nama biaya" placeholder="nama biaya">
     <input type="text" class="form-control form-control-sm" name="biaya_nominal[]" aria-label="Nominal biaya" placeholder="nominal">
     <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-biaya" aria-label="Hapus biaya">x</button>

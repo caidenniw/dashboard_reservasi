@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import type { FlashData } from "@/lib/flash";
 
 /*
@@ -10,6 +11,22 @@ import type { FlashData } from "@/lib/flash";
  */
 export function Alerts({ flash }: { flash: FlashData }) {
     const [visible, setVisible] = useState<Record<string, boolean>>({});
+    /* Flash datang lewat full reload (cookie dikonsumsi proxy); layout tak
+       re-render saat soft nav, jadi pesan lama menempel lintas menu —
+       sembunyikan permanen begitu rute berpindah. */
+    const path = usePathname();
+    const [pathAwal] = useState(path);
+    const [lintasRute, setLintasRute] = useState(false);
+
+    useEffect(() => {
+        if (path !== pathAwal) {
+            setLintasRute(true);
+        }
+    }, [path, pathAwal]);
+
+    if (lintasRute) {
+        return null;
+    }
 
     const urutan: Array<[keyof FlashData, string]> = [
         ["success", "alert-success"],
@@ -30,7 +47,7 @@ export function Alerts({ flash }: { flash: FlashData }) {
                         <span className="text-sm font-medium">{pesan}</span>
                         <button 
                             type="button" 
-                            className="ml-4 text-current opacity-50 hover:opacity-100 transition-opacity" 
+                            className="ml-4 min-w-11 min-h-11 inline-flex items-center justify-center text-current opacity-50 hover:opacity-100 transition-opacity" 
                             onClick={() => setVisible(prev => ({ ...prev, [kunci]: false }))} 
                             aria-label="Tutup peringatan" 
                         >

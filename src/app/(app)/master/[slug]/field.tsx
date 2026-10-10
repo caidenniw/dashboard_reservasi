@@ -40,6 +40,7 @@ export function FieldMaster({
                     <span className="input-group-text">Rp</span>
                     <input
                         type="text"
+                        inputMode="numeric"
                         className="form-control input-rupiah"
                         id={id}
                         name={c.name}

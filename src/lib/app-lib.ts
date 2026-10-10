@@ -91,31 +91,10 @@ export function mapAsalUser(raw: string): { tipe: string; sumber: string; raw: s
     return { tipe: "retail", sumber: "lainnya", raw };
 }
 
-/** Inisial pendek nama pemesan untuk label kotak di papan ketersediaan unit. */
-export function kodePendek(nama: string): string {
-    let s = String(nama ?? "").trim();
-    s = s.replace(/\b(PT|CV|UD|RS|Kab|Kota|Kabupaten|Dinas|BPJS|Kementerian|Kementrian)\b\.?\s*/gi, "");
-    const words = s.split(/\s+/);
-    let k = "";
-    for (const w of words) {
-        const bersih = w.replace(/[^A-Za-z]/g, "");
-        if (bersih === "") {
-            continue;
-        }
-        k += bersih.charAt(0).toUpperCase();
-        if (k.length >= 2) {
-            break;
-        }
-    }
-    if (k === "") {
-        k = s.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase();
-    }
-    return k;
-}
 
-export function normalisasiNama(s: string): string {
-    return String(s ?? "").trim().replace(/\s+/g, " ").replace(/^[ \t|]+|[ \t|]+$/g, "");
-}
+
+
+
 
 export function daftarUpgrade(): string[] {
     return ["Up Reborn", "Reborn", "Up Avanza", "Avanza", "Zenix G", "Premio Std", "Up Zenix", "Up Hiace"];

@@ -1,15 +1,12 @@
 import "server-only";
 import { query, queryOne } from "@/lib/db";
-import { bulanSingkat, sekarangJakarta } from "@/lib/format";
+import { sekarangJakarta } from "@/lib/format";
 
 /*
- * Beranda — port PERSIS app/Http/Controllers/BerandaController.php
- * (index + kalenderUnit, yang menyalin pages/beranda.php + includes/kalender_unit.php).
- * HANYA MEMBACA data.
- *
- * Margin SENGAJA tidak dikirim (sama seperti Laravel): owner menilai margin beli-jual
- * menyesatkan sebelum biaya operasional dihitung. Karena itu Beranda tidak butuh
- * penyaringan peran — aturan lihat_modal hanya berlaku di laporan/invoice.
+ * Kalender ketersediaan unit + driver — port kalenderUnit BerandaController.php
+ * (menyalin includes/kalender_unit.php), dipakai halaman /ketersediaan.
+ * HANYA MEMBACA data. Ringkasan/beranda lama (index) tidak lagi dipakai
+ * halaman beranda (kini peta modul), jadi bloknya dihapus.
  */
 
 /* ============================== BANTU TANGGAL ============================== */
@@ -39,17 +36,11 @@ function tambahHari(tgl: string, n: number): string {
     return ymd(new Date(Date.UTC(p.y, p.m - 1, p.d + n)));
 }
 
-/** date('Y-m-01', strtotime("n month")) — awal bulan setelah digeser n bulan. */
-function awalBulan(tgl: string, n = 0): string {
-    const p = bagian(tgl) as BagianTgl;
-    return ymd(new Date(Date.UTC(p.y, p.m - 1 + n, 1)));
-}
 
-/** date('Y-m-t') — hari terakhir bulan dari tanggal itu. */
-function akhirBulan(tgl: string): string {
-    const p = bagian(tgl) as BagianTgl;
-    return ymd(new Date(Date.UTC(p.y, p.m, 0)));
-}
+
+
+
+
 
 const NAMA_HARI_SINGKAT = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 
@@ -104,49 +95,13 @@ export interface HasilKalender {
     totalDriver: number;
 }
 
-export interface BarisBeranda {
-    id: number;
-    nomor_order: string;
-    tgl_mulai: string;
-    tgl_finish?: string;
-    jumlah_hari?: number;
-    nama_pesanan: string;
-    status: string;
-    grand_total: number | string;
-    kota?: string | null;
-    nama_pic?: string | null;
-    nopol: string | null;
-    driver?: string | null;
-}
 
-export interface TitikGrafik {
-    bulan: string;
-    kode: string;
-    jumlah: number;
-    nilai: number;
-}
 
-export interface HasilBeranda extends HasilKalender {
-    periodePilihan: Record<string, string>;
-    periode: string;
-    mulai: string;
-    sampai: string;
-    ringkas: { c: number; j: number; m: number };
-    unitPeriode: number;
-    nilaiPeriode: { j: number; m: number; c: number };
-    berjalan: number;
-    unitKeluar: number;
-    inv: { c: number; s: number };
-    historis: { c: number; t: number };
-    papan: Record<string, { c: number; t: number }>;
-    tanpaUnit: number;
-    grafik: TitikGrafik[];
-    pesananPeriode: BarisBeranda[];
-    terbaru: BarisBeranda[];
-    hariIni: string;
-}
 
-/** Parameter query Beranda (semuanya string mentah dari query string). */
+
+
+
+/** Parameter query kalender ketersediaan (semuanya string mentah dari query string). */
 export interface ParamsBeranda {
     periode: string;
     dari: string;
@@ -156,58 +111,12 @@ export interface ParamsBeranda {
     semua: string;
 }
 
-const PILIHAN_PERIODE: Record<string, string> = {
-    hari: "Hari ini",
-    "7hari": "7 hari",
-    bulan: "Bulan ini",
-    "3bulan": "3 bulan",
-    tahun: "Tahun ini",
-    custom: "Rentang sendiri",
-};
 
-const TGL_VALID = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Rentang periode ringkasan — port blok switch BerandaController::index. */
-function hitungPeriode(periodeAwal: string, dariParam: string, sampaiParam: string, hariIni: string) {
-    let periode = PILIHAN_PERIODE[periodeAwal] ? periodeAwal : "bulan";
-    let mulai: string;
-    let sampai: string;
 
-    switch (periode) {
-        case "hari":
-            mulai = sampai = hariIni;
-            break;
-        case "7hari":
-            mulai = tambahHari(hariIni, -6);
-            sampai = hariIni;
-            break;
-        case "3bulan":
-            mulai = awalBulan(tambahHari(awalBulan(hariIni), -1), -1);
-            sampai = akhirBulan(hariIni);
-            break;
-        case "tahun": {
-            const th = (bagian(hariIni) as BagianTgl).y;
-            mulai = `${th}-01-01`;
-            sampai = `${th}-12-31`;
-            break;
-        }
-        case "custom":
-            mulai = TGL_VALID.test(dariParam) ? dariParam : awalBulan(hariIni);
-            sampai = TGL_VALID.test(sampaiParam) ? sampaiParam : hariIni;
-            if (sampai < mulai) {
-                const t = mulai;
-                mulai = sampai;
-                sampai = t;
-            }
-            break;
-        default:
-            periode = "bulan";
-            mulai = awalBulan(hariIni);
-            sampai = akhirBulan(hariIni);
-    }
 
-    return { periode, mulai, sampai };
-}
+
+
 
 /* ============================== KALENDER ============================== */
 
@@ -415,169 +324,5 @@ export async function ambilKalender(q: ParamsBeranda): Promise<HasilKalender> {
     return kalenderUnit(q, sekarangJakarta());
 }
 
-/** Semua data Beranda — port BerandaController::index + kalenderUnit. */
-export async function ambilBeranda(q: ParamsBeranda): Promise<HasilBeranda> {
-    const hariIni = sekarangJakarta();
-    const { periode, mulai, sampai } = hitungPeriode(q.periode ?? "", q.dari ?? "", q.sampai ?? "", hariIni);
 
-    /* pesanan historis impor (Lunas tanpa invoice) tidak dihitung pendapatan */
-    const syaratHistoris =
-        "(NOT (o.status = 'paid' AND NOT EXISTS (SELECT 1 FROM invoices iv WHERE iv.order_id = o.id AND iv.status <> 'batal')))";
 
-    const ringkasRow = await queryOne<{ c: number; j: string; m: string }>(
-        `SELECT COUNT(*) c, COALESCE(SUM(o.grand_total),0) j, COALESCE(SUM(o.margin),0) m
-         FROM orders o
-         WHERE o.deleted_at IS NULL AND o.status NOT IN ('cancelled','closed')
-           AND o.tgl_mulai BETWEEN ? AND ?`,
-        [mulai, sampai],
-    );
-
-    const unitPeriode = Number(
-        (
-            await queryOne<{ c: number }>(
-                `SELECT COUNT(DISTINCT i.unit_id) c FROM order_items i JOIN orders o ON o.id = i.order_id
-                 WHERE o.deleted_at IS NULL AND i.unit_id IS NOT NULL
-                   AND o.status NOT IN ('cancelled','closed')
-                   AND o.tgl_mulai BETWEEN ? AND ?`,
-                [mulai, sampai],
-            )
-        )?.c ?? 0,
-    );
-
-    const nilaiPeriodeRow = await queryOne<{ j: string; m: string; c: number }>(
-        `SELECT COALESCE(SUM(o.grand_total),0) j, COALESCE(SUM(o.margin),0) m, COUNT(*) c
-         FROM orders o
-         WHERE o.deleted_at IS NULL AND o.status NOT IN ('cancelled','closed')
-           AND ${syaratHistoris}
-           AND o.tgl_mulai BETWEEN ? AND ?`,
-        [mulai, sampai],
-    );
-
-    const berjalan = Number(
-        (
-            await queryOne<{ c: number }>(
-                `SELECT COUNT(*) c FROM orders WHERE deleted_at IS NULL
-                 AND status NOT IN ('cancelled','closed')
-                 AND tgl_mulai <= ? AND tgl_finish >= ?`,
-                [hariIni, hariIni],
-            )
-        )?.c ?? 0,
-    );
-
-    const unitKeluar = Number(
-        (
-            await queryOne<{ c: number }>(
-                `SELECT COUNT(DISTINCT i.unit_id) c FROM order_items i JOIN orders o ON o.id = i.order_id
-                 WHERE o.deleted_at IS NULL AND i.unit_id IS NOT NULL
-                   AND o.status NOT IN ('cancelled','closed')
-                   AND o.tgl_mulai <= ? AND o.tgl_finish >= ?`,
-                [hariIni, hariIni],
-            )
-        )?.c ?? 0,
-    );
-
-    const invRow = await queryOne<{ c: number; s: string }>(
-        `SELECT COUNT(*) c, COALESCE(SUM(i.sisa),0) s FROM invoices i
-         JOIN orders o ON o.id = i.order_id
-         WHERE i.status IN ('terbit','sebagian')
-           AND o.deleted_at IS NULL AND o.status NOT IN ('cancelled','closed')`,
-    );
-
-    const historisRow = await queryOne<{ c: number; t: string }>(
-        `SELECT COUNT(*) c, COALESCE(SUM(o.grand_total),0) t FROM orders o
-         WHERE o.deleted_at IS NULL AND o.status = 'paid'
-           AND NOT EXISTS (SELECT 1 FROM invoices iv WHERE iv.order_id = o.id AND iv.status <> 'batal')`,
-    );
-
-    /* papan status (kondisi saat ini) */
-    const papan: Record<string, { c: number; t: number }> = {};
-    for (const row of await query<{ status: string; c: number; t: string }>(
-        `SELECT status, COUNT(*) c, COALESCE(SUM(grand_total),0) t FROM orders
-         WHERE deleted_at IS NULL GROUP BY status`,
-    )) {
-        papan[row.status] = { c: Number(row.c), t: Number(row.t) };
-    }
-
-    const tanpaUnit = Number(
-        (
-            await queryOne<{ c: number }>(
-                `SELECT COUNT(*) c FROM orders o WHERE o.deleted_at IS NULL AND o.status NOT IN ('cancelled','closed')
-                 AND NOT EXISTS (SELECT 1 FROM order_items i WHERE i.order_id = o.id)`,
-            )
-        )?.c ?? 0,
-    );
-
-    /* ===== TREN 6 BULAN ===== */
-    const grafik: TitikGrafik[] = [];
-    for (let i = 5; i >= 0; i--) {
-        const aw = awalBulan(hariIni, -i);
-        const ak = akhirBulan(aw);
-        const p = bagian(aw) as BagianTgl;
-        const row = await queryOne<{ c: number; j: string }>(
-            `SELECT COUNT(*) c, COALESCE(SUM(o.grand_total),0) j, COALESCE(SUM(o.margin),0) m
-             FROM orders o
-             WHERE o.deleted_at IS NULL AND o.status NOT IN ('cancelled','closed')
-               AND ${syaratHistoris}
-               AND o.tgl_mulai BETWEEN ? AND ?`,
-            [aw, ak],
-        );
-        grafik.push({
-            bulan: `${bulanSingkat(p.m)} ${String(p.y).slice(-2)}`,
-            kode: aw.slice(0, 7),
-            jumlah: Number(row?.c ?? 0),
-            /* margin sengaja tidak dikirim ke dashboard (lihat catatan atas). */
-            nilai: Number(row?.j ?? 0),
-        });
-    }
-
-    /* ===== DAFTAR PESANAN PERIODE ===== */
-    const pesananPeriode = await query<BarisBeranda>(
-        `SELECT o.id, o.nomor_order, o.tgl_mulai, o.tgl_finish, o.jumlah_hari, o.nama_pesanan,
-                o.status, o.grand_total, o.kota, o.nama_pic,
-                (SELECT GROUP_CONCAT(DISTINCT i.nopol SEPARATOR ', ') FROM order_items i WHERE i.order_id = o.id) nopol,
-                (SELECT GROUP_CONCAT(DISTINCT i.nama_driver SEPARATOR ', ') FROM order_items i WHERE i.order_id = o.id) driver
-         FROM orders o
-         WHERE o.deleted_at IS NULL AND o.status NOT IN ('cancelled','closed')
-           AND o.tgl_mulai BETWEEN ? AND ?
-         ORDER BY o.tgl_mulai DESC, o.id DESC LIMIT 12`,
-        [mulai, sampai],
-    );
-
-    const terbaru = await query<BarisBeranda>(
-        `SELECT o.id, o.nomor_order, o.tgl_mulai, o.nama_pesanan, o.status, o.grand_total,
-                (SELECT GROUP_CONCAT(DISTINCT i.nopol SEPARATOR ', ') FROM order_items i WHERE i.order_id = o.id) nopol
-         FROM orders o WHERE o.deleted_at IS NULL
-         ORDER BY o.created_at DESC, o.id DESC LIMIT 6`,
-    );
-
-    const kalender = await kalenderUnit(q, hariIni);
-
-    return {
-        periodePilihan: PILIHAN_PERIODE,
-        periode,
-        mulai,
-        sampai,
-        ringkas: {
-            c: Number(ringkasRow?.c ?? 0),
-            j: Number(ringkasRow?.j ?? 0),
-            m: Number(ringkasRow?.m ?? 0),
-        },
-        unitPeriode,
-        nilaiPeriode: {
-            j: Number(nilaiPeriodeRow?.j ?? 0),
-            m: Number(nilaiPeriodeRow?.m ?? 0),
-            c: Number(nilaiPeriodeRow?.c ?? 0),
-        },
-        berjalan,
-        unitKeluar,
-        inv: { c: Number(invRow?.c ?? 0), s: Number(invRow?.s ?? 0) },
-        historis: { c: Number(historisRow?.c ?? 0), t: Number(historisRow?.t ?? 0) },
-        papan,
-        tanpaUnit,
-        grafik,
-        pesananPeriode,
-        terbaru,
-        hariIni,
-        ...kalender,
-    };
-}

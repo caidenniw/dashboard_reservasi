@@ -23,7 +23,15 @@ export function ToolbarModern() {
             <button className="btn-print" onClick={() => window.print()}>
                 Print / Save PDF
             </button>
-            <button className="btn-back" onClick={() => window.close()}>
+            <button
+                className="btn-back"
+                onClick={(e) => {
+                    window.close();
+                    /* Tab biasa menolak close tanpa pesan — sembunyikan tombol
+                       supaya tidak terlihat mati (bukan popup: tak bisa kembali). */
+                    e.currentTarget.style.display = "none";
+                }}
+            >
                 Kembali
             </button>
             <span className="hint">Template: Modern 1000 &mdash; tekan Ctrl+P untuk mencetak</span>

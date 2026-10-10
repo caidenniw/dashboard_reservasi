@@ -53,7 +53,7 @@ export default async function HalamanAuditLog({
                 <div className="card-title">Audit Log Status</div>
                 <form method="get" action="/laporan/audit" className="row g-2 mb-3">
                     <div className="col-md-10">
-                        <input className="form-control" name="q" defaultValue={q} placeholder="Cari oleh, catatan, status, atau nomor order" />
+                        <input className="form-control" name="q" defaultValue={q} placeholder="Cari oleh, catatan, status, atau nomor order" aria-label="Cari oleh, catatan, status, atau nomor order" />
                     </div>
                     <div className="col-md-2">
                         <button type="submit" className="btn btn-outline-secondary w-full">Cari</button>

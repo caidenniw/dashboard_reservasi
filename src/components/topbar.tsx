@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { TampilJudul } from "@/components/judul-halaman";
-import type { ItemMenu } from "@/config/menu";
 
 /*
  * Topbar — port 1:1 dari <header class="topbar"> di layouts/app.blade.php.
@@ -13,14 +13,10 @@ import type { ItemMenu } from "@/config/menu";
  */
 
 export function Topbar({
-    jejak,
-    judulAwal,
     nama,
     bolehTulisPesanan,
     tanggal,
 }: {
-    jejak: ItemMenu[];
-    judulAwal: string;
     nama: string;
     bolehTulisPesanan: boolean;
     tanggal: string;
@@ -64,16 +60,16 @@ export function Topbar({
                         <path d="m14 9 3 3-3 3" />
                     </svg>
                 </button>
-                <TampilJudul jejak={jejak} judulAwal={judulAwal} />
+                <TampilJudul />
             </div>
 
             <div className="topbar-right">
                 <span className="topbar-date">{tanggal}</span>
                 {bolehTulisPesanan && (
-                    <a href="/pesanan/baru" className="btn btn-sm btn-primary btn-quick-order">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="me-1"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    <Link href="/pesanan/baru" className="btn btn-sm btn-primary btn-quick-order" aria-label="Pesanan Baru">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="me-1" aria-hidden="true" focusable="false"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                         <span>Pesanan Baru</span>
-                    </a>
+                    </Link>
                 )}
                 <button
                     type="button"

@@ -16,7 +16,7 @@ import { SkripMuat } from "@/components/skrip-muat";
  *
  * Token HMAC stabil per user disuntik dari tokenUntuk(user.id).
  */
-const SKRIP_ASISTEN = ["/assets/js/asisten.js?v=20261005f"];
+const SKRIP_ASISTEN = ["/assets/js/asisten.js?v=20261009a"];
 export async function WidgetAsisten({ role }: { role: Role }) {
     /* Penyaring cepat dari shell; sesi diverifikasi ulang di bawah. */
     if (!roleBoleh(role, "asisten") || !siap()) {
@@ -74,6 +74,7 @@ export async function WidgetAsisten({ role }: { role: Role }) {
                 role="dialog"
                 aria-label="Asisten data dashboard"
                 aria-modal="true"
+                aria-hidden="true"
                 tabIndex={-1}
                 data-rna-root
                 data-rna-buka="rnaPanel"
@@ -123,7 +124,7 @@ export async function WidgetAsisten({ role }: { role: Role }) {
                 </form>
             </div>
 
-            <SkripMuat daftar={SKRIP_ASISTEN} />
+            <SkripMuat daftar={SKRIP_ASISTEN} sekali />
         </>
     );
 }

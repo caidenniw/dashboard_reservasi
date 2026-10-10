@@ -110,7 +110,7 @@ export default async function HalamanMaster({
                     </form>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left border-collapse">
+                    <table className="tabel kartu-hp w-full text-sm text-left border-collapse">
                         <caption className="sr-only">Daftar {cfg.judul}</caption>
                         <thead className="bg-surface-2 text-ink-soft">
                             <tr>
@@ -124,7 +124,9 @@ export default async function HalamanMaster({
                             {rows.length === 0 && (
                                 <tr>
                                     <td colSpan={cfg.kolom_list.length + 1} className="px-3 py-8 text-center text-ink-soft italic">
-                                        {bolehTulis ? "Belum ada data. Tambahkan lewat form di atas." : "Belum ada data."}
+                                        <div className="table-kosong">
+                                            {bolehTulis ? "Belum ada data. Tambahkan lewat form di atas." : "Belum ada data."}
+                                        </div>
                                     </td>
                                 </tr>
                             )}
@@ -171,7 +173,7 @@ export default async function HalamanMaster({
                                                 <form method="post" action={aksiHapus} data-konfirmasi="Nonaktifkan data ini?">
                                                     <input type="hidden" name="aksi" value="hapus" />
                                                     <input type="hidden" name="id" value={Number(r.id)} />
-                                                    <button type="submit" className="px-2 py-1 text-xs font-medium rounded-md border border-danger-line text-danger hover:bg-danger-soft transition-colors">Hapus</button>
+                                                    <button type="submit" className="px-2 py-1 text-xs font-medium rounded-md border border-danger-line text-danger hover:bg-danger-soft transition-colors">Nonaktifkan</button>
                                                 </form>
                                             )}
                                         </div>

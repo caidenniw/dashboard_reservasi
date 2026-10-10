@@ -1,21 +1,10 @@
 import { harusMasuk } from "@/lib/sesi";
 import { roleBoleh } from "@/lib/akses";
-import { rupiah, tglId, sekarangJakarta, normalisasiHp } from "@/lib/format";
-import { query } from "@/lib/db";
+import { rupiah } from "@/lib/format";
 import { ambilLaporanPenjualan } from "@/lib/laporan-server";
 import { SkripMuat } from "@/components/skrip-muat";
+import { ambilPiutang, TabelRekapPiutang, TabelDetailPiutang } from "../../keuangan/_tabel-piutang";
 
-/** Satu baris piutang: invoice terbit/sebagian yang masih punya sisa tagihan. */
-interface BarisPiutang {
-    order_id: number;
-    nomor_invoice: string;
-    tanggal_invoice: string;
-    jatuh_tempo: string | null;
-    total: string;
-    sisa: string;
-    nama_pesanan: string | null;
-    hp_pic: string | null;
-}
 /*
  * Laporan Penjualan — port 1:1 dari resources/views/laporan/penjualan.blade.php
  * + LaporanController::penjualan. HANYA MEMBACA data.
@@ -27,7 +16,7 @@ interface BarisPiutang {
 /** Skrip khusus laporan — Chart.js lokal + penggambar grafik (dari @push('skrip') Blade). */
 const SKRIP_LAPORAN = [
     "/assets/vendor/chartjs/chart.umd.min.js",
-    "/assets/js/laporan_chart.js?v=20261003a",
+    "/assets/js/laporan_chart.js?v=20261009a",
 ];
 
 /** Gaya khas halaman ini — salinan @push('gaya') Blade (.periode-bar/chip/label global di app.css). */
@@ -68,28 +57,10 @@ export default async function HalamanLaporanPenjualan({
 
     const l = await ambilLaporanPenjualan({ mode: teks("mode"), acuan: teks("acuan") }, user);
 
-    /* Piutang berjalan — hanya untuk peran yang boleh mencatat pembayaran (finance/owner). */
+    /* Piutang berjalan — hanya untuk peran yang boleh mencatat pembayaran (finance/owner).
+       Query & tabel dibagi dengan halaman Keuangan/Piutang. */
     const bolehPiutang = roleBoleh(user.role, "keuangan.bayar");
-    const piutang = bolehPiutang
-        ? await query<BarisPiutang>(
-            `SELECT i.order_id, i.nomor_invoice, i.tanggal_invoice, i.jatuh_tempo, i.total, i.sisa, o.nama_pesanan, o.hp_pic
-             FROM invoices i JOIN orders o ON o.id = i.order_id
-             WHERE i.status IN ('terbit', 'sebagian') AND i.sisa > 0
-             ORDER BY i.jatuh_tempo IS NULL, i.jatuh_tempo, i.id`,
-        )
-        : [];
-    const totalPiutang = piutang.reduce((a, b) => a + Number(b.sisa), 0);
-    /* Rekap per customer — COALESCE menangani order retail tanpa customer_id. */
-    const piutangCustomer = bolehPiutang && piutang.length > 0
-        ? await query<{ customer: string | null; jml: number; sisa: string }>(
-            `SELECT COALESCE(c.nama_pesanan, o.nama_pesanan) customer, COUNT(*) jml, SUM(i.sisa) sisa
-             FROM invoices i JOIN orders o ON o.id = i.order_id
-             LEFT JOIN customers c ON c.id = o.customer_id
-             WHERE i.status IN ('terbit', 'sebagian') AND i.sisa > 0
-             GROUP BY COALESCE(c.nama_pesanan, o.nama_pesanan)
-             ORDER BY sisa DESC`,
-        )
-        : [];
+    const piutangData = bolehPiutang ? await ambilPiutang() : null;
 
     /* Data grafik — bentuk objek sama persis dengan json_encode di Blade. */
     const dataGrafik = {
@@ -156,17 +127,17 @@ export default async function HalamanLaporanPenjualan({
                     <div className="flex flex-wrap gap-4 mb-4">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-xs font-medium text-ink-soft">Data:</span>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-primary-fill border-primary-fill text-on-primary" data-grafik-sumber="mobil">Per mobil (BK)</button>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-sumber="armada">Per armada (jenis)</button>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-sumber="kota">Per kota</button>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-sumber="reservasi">Per reservasi</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2 active" data-grafik-sumber="mobil" aria-pressed="true">Per mobil (BK)</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-sumber="armada" aria-pressed="false">Per armada (jenis)</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-sumber="kota" aria-pressed="false">Per kota</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-sumber="reservasi" aria-pressed="false">Per reservasi</button>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-xs font-medium text-ink-soft">Model:</span>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-primary-fill border-primary-fill text-on-primary" data-grafik-model="bar">Batang</button>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-model="line">Garis</button>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-model="doughnut">Lingkaran</button>
-                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-model="radar">Radar</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2 active" data-grafik-model="bar" aria-pressed="true">Batang</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-model="line" aria-pressed="false">Garis</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-model="doughnut" aria-pressed="false">Lingkaran</button>
+                            <button type="button" className="px-2 py-1 text-xs font-medium rounded-full border bg-surface border-line-strong text-ink-soft hover:bg-surface-2" data-grafik-model="radar" aria-pressed="false">Radar</button>
                         </div>
                     </div>
 
@@ -437,102 +408,15 @@ export default async function HalamanLaporanPenjualan({
                 </div>
             </div>
 
-            {bolehPiutang && (
+            {piutangData && (
                 <div className="card-box">
                     <h2 className="card-title">Piutang (invoice belum lunas)</h2>
                     <div className="form-text mb-2">
                         Invoice terbit/sebagian yang masih punya sisa tagihan, diurut dari jatuh tempo terlama.
                         Lewat jatuh tempo ditandai merah. Klik &quot;Bayar&quot; untuk mencatat pembayaran.
                     </div>
-                    {piutangCustomer.length > 0 && (
-                        <div className="table-wrap mb-4">
-                            <table className="tabel kartu-hp">
-                                <caption className="visually-hidden">Rekap piutang per customer</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Customer</th>
-                                        <th scope="col" className="num">Jumlah Invoice</th>
-                                        <th scope="col" className="num">Total Sisa</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {piutangCustomer.map((k) => (
-                                        <tr key={k.customer ?? "-"}>
-                                            <td data-label="Customer">{k.customer || "-"}</td>
-                                            <td className="num" data-label="Jumlah Invoice">{Number(k.jml)}</td>
-                                            <td className="num" data-label="Total Sisa"><b>{rupiah(k.sisa, false)}</b></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th colSpan={2}>TOTAL</th>
-                                        <th className="num">{rupiah(totalPiutang, false)}</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    )}
-                    <div className="table-wrap">
-                        <table className="tabel kartu-hp">
-                            <caption className="visually-hidden">Piutang belum lunas</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Invoice</th>
-                                    <th scope="col">Customer</th>
-                                    <th scope="col">Tgl Invoice</th>
-                                    <th scope="col">Jatuh Tempo</th>
-                                    <th scope="col" className="num">Nilai</th>
-                                    <th scope="col" className="num">Sisa</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {piutang.length === 0 && (
-                                    <tr>
-                                        <td colSpan={7} data-label="">
-                                            <div className="table-kosong">Tidak ada piutang berjalan — semua invoice lunas.</div>
-                                        </td>
-                                    </tr>
-                                )}
-                                {piutang.map((p) => {
-                                    const lewat = p.jatuh_tempo !== null && p.jatuh_tempo < sekarangJakarta();
-                                    const digits = normalisasiHp(p.hp_pic).replace(/[^0-9]/g, "");
-                                    const pesan = digits === "" ? null : `https://wa.me/${digits}?text=${encodeURIComponent(`Yth ${p.nama_pesanan ?? "-"}, tagihan ${p.nomor_invoice} sisa ${rupiah(p.sisa, false)}, jatuh tempo ${tglId(p.jatuh_tempo)}. Mohon info pembayarannya. Terima kasih.`)}`;
-                                    return (
-                                        <tr key={p.nomor_invoice}>
-                                            <td className="mono" data-label="Invoice">{p.nomor_invoice}</td>
-                                            <td data-label="Customer">{p.nama_pesanan || "-"}</td>
-                                            <td data-label="Tgl Invoice">{tglId(p.tanggal_invoice)}</td>
-                                            <td data-label="Jatuh Tempo">
-                                                {tglId(p.jatuh_tempo)}
-                                                {lewat && (
-                                                    <span className="badge-pill pill-red ml-1">LEWAT</span>
-                                                )}
-                                            </td>
-                                            <td className="num" data-label="Nilai">{rupiah(p.total, false)}</td>
-                                            <td className="num" data-label="Sisa"><b>{rupiah(p.sisa, false)}</b></td>
-                                            <td data-label="">
-                                                {pesan
-                                                    ? <a className="btn btn-sm btn-outline-secondary mr-1" target="_blank" rel="noopener noreferrer" href={pesan}>Reminder</a>
-                                                    : "- "}
-                                                <a className="btn btn-sm btn-outline-secondary" href={`/pesanan/${p.order_id}`}>Bayar</a>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                            {piutang.length > 0 && (
-                                <tfoot>
-                                    <tr>
-                                        <th colSpan={5}>TOTAL PIUTANG</th>
-                                        <th className="num">{rupiah(totalPiutang, false)}</th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-                            )}
-                        </table>
-                    </div>
+                    <TabelRekapPiutang rows={piutangData.piutangCustomer} total={piutangData.totalPiutang} />
+                    <TabelDetailPiutang rows={piutangData.piutang} total={piutangData.totalPiutang} />
                 </div>
             )}
 

@@ -73,7 +73,7 @@ export default async function HalamanArusKas({
                 <div className="card-title">Arus Kas — Riwayat Pembayaran</div>
                 <form method="get" action="/keuangan/arus-kas" className="row g-2 mb-3">
                     <div className="col-md-4">
-                        <input className="form-control" name="q" defaultValue={q} placeholder="Cari nomor invoice, customer, catatan, atau bank" />
+                        <input className="form-control" name="q" defaultValue={q} placeholder="Cari nomor invoice, customer, catatan, atau bank" aria-label="Cari nomor invoice, customer, catatan, atau bank" />
                     </div>
                     <div className="col-md-3">
                         <input type="date" className="form-control" name="dari" defaultValue={dari} aria-label="Dari tanggal" />

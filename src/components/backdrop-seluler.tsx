@@ -9,6 +9,7 @@ export function BackdropSeluler() {
         <div
             className="sidebar-backdrop"
             id="sidebarBackdrop"
+            aria-hidden="true"
             onClick={() =>
                 (window as unknown as { rnTutupSidebarMobile?: () => void }).rnTutupSidebarMobile?.()
             }

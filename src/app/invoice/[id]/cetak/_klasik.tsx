@@ -160,7 +160,7 @@ export function InvoiceKlasik({
                                 <td className="amount-cell">{nomorBayar}</td>
                             </tr>
                             <tr>
-                                <td colSpan={kolomTotal} className="label-cell">Total Yang Harus Di Bayar</td>
+                                <td colSpan={kolomTotal} className="label-cell">Total yang Harus Dibayar</td>
                                 <td className="hari-cell">-</td>
                                 <td className="amount-cell">Rp {rupiah(d.sisa, false)}</td>
                             </tr>

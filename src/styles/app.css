@@ -943,6 +943,13 @@ svg[stroke-width] { stroke-width: 1.7; }
     color: var(--on-primary);
     font-weight: 600;
 }
+/* Tombol sumber/model grafik laporan — kelas .active dipindah oleh
+   laporan_chart.js (sinkronTombol) dan diiringi aria-pressed. */
+[data-grafik-sumber].active, [data-grafik-model].active {
+    background: var(--primary-fill);
+    border-color: var(--primary-fill);
+    color: var(--on-primary);
+}
 .periode-label {
     font-size: 12.5px;
     color: var(--ink-soft);
@@ -1725,6 +1732,12 @@ input[type="file"].form-control::file-selector-button:hover { background: var(--
    ===================================================================== */
 html { scroll-behavior: smooth; }
 
+/* Anti-flash pemulihan scroll: skrip pre-paint (src/lib/skrip-tema.ts) menambahkan
+   class ini bila ada posisi tersimpan; scroll-keep.js melepasnya setelah posisi
+   dipulihkan. Tanpa aturan ini halaman sempat terlihat menyambar ke atas. */
+html.rn-restore,
+html.rn-restore body { visibility: hidden; }
+
 .interactive-muted,
 .dropdown-item {
     transition: background-color var(--motion-fast) ease, color var(--motion-fast) ease;
@@ -1848,7 +1861,7 @@ dialog.rn-dialog::backdrop {
    SIDEBAR LIPAT (desktop >=992px)
    Tombol di topbar menambah `sidebar-ciut` pada <html>; sidebar menyusut
    jadi rel ikon 72px, label disembunyikan, nama menu terbaca lewat tooltip
-   `title`. HANYA berlaku di desktop: blok @media (max-width:991px) di bawah
+   `title`. HANYA berlaku di desktop: blok @media (max-width:991.98px) di bawah
    tetap mengatur drawer mobile dan tidak terpengaruh kelas ini.
    ===================================================================== */
 /* =====================================================================
@@ -1959,7 +1972,7 @@ dialog.rn-dialog::backdrop {
     }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 991.98px) {
     .app { flex-direction: column; }
 
     /* Sidebar jadi offcanvas geser */

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MENU, type ItemMenu } from "@/config/menu";
+import { metaRute } from "@/config/rute";
 import { menuTampil, labelRole, type Role } from "@/lib/akses";
 import { APP_NAME, APP_SUB } from "@/lib/brand";
 
@@ -49,14 +52,16 @@ function indukDari(kunci: string): string | null {
 }
 
 export function Sidebar({
-    menuAktif,
     nama,
     role,
 }: {
-    menuAktif: string;
     nama: string;
     role: Role;
 }) {
+    /* Menu aktif dihitung dari pathname klien: layout TIDAK re-render saat soft
+       nav (segmen layout dipakai ulang Router Cache), jadi prop server basi. */
+    const pathname = usePathname();
+    const menuAktif = metaRute(pathname).menu;
     const inisial = (nama || "A").charAt(0).toUpperCase();
     const [buka, setBuka] = useState<Record<string, boolean>>(() => {
         const induk = indukDari(menuAktif);
@@ -119,9 +124,15 @@ export function Sidebar({
         }
         const aktif = menuAktif === nav.key;
         return (
-            <a
+            <Link
                 key={nav.key}
                 href={nav.href}
+                onClick={() => {
+                    /* Soft nav: reload tak mereset drawer mobile — tutup dulu.
+                       Penutup dari shell-aksi menempel di window, tak diketahui TS. */
+                    const shell = window as unknown as { rnTutupSidebarMobile?: () => void };
+                    shell.rnTutupSidebarMobile?.();
+                }}
                 className={`nav-item${sub ? " sub" : ""}${aktif ? " active" : ""}`}
                 aria-label={nav.label}
                 title={nav.label}
@@ -130,17 +141,25 @@ export function Sidebar({
                 {!sub && <span className="nav-icon" dangerouslySetInnerHTML={{ __html: nav.icon }} />}
                 <span className="nav-label">{nav.label}</span>
                 {aktif && <span className="nav-dot" />}
-            </a>
+            </Link>
         );
     };
 
     return (
         <aside className="sidebar" id="sidebarApp">
             <div className="sidebar-brand">
-                <a href="/" className="brand-link">
+                <Link
+                    href="/"
+                    onClick={() => {
+                        /* Tutup drawer mobile sebelum soft nav; API shell tak diketahui TS. */
+                        const shell = window as unknown as { rnTutupSidebarMobile?: () => void };
+                        shell.rnTutupSidebarMobile?.();
+                    }}
+                    className="brand-link"
+                >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/assets/img/logo.png" alt={APP_NAME} className="brand-logo" />
-                </a>
+                </Link>
                 <div className="brand-sub">{APP_SUB}</div>
                 <button
                     type="button"

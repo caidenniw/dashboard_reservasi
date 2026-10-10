@@ -677,7 +677,7 @@ export default async function HalamanDetailPesanan({
                 <form method="post" action={`/pesanan/${idNum}/aksi`} className="flex flex-wrap items-end gap-4">
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-sm font-medium text-ink-soft mb-1">Status Baru</label>
-                        <select className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface text-sm text-ink focus:ring-2 focus:ring-primary outline-none transition-all" name="status" aria-label="Status baru">
+                        <select className="w-full px-3 py-2 rounded-lg border border-line-strong bg-surface text-sm text-ink focus:ring-2 focus:ring-primary outline-none transition-all" name="status_baru" aria-label="Status baru">
                             {DAFTAR_STATUS.map((st) => (
                                 <option key={st} value={st}>{statusLabel(st)}</option>
                             ))}
@@ -689,7 +689,7 @@ export default async function HalamanDetailPesanan({
                     </div>
                     <button className="px-4 py-2 bg-primary-fill hover:bg-primary-d text-on-primary rounded-lg text-sm font-medium transition-colors" type="submit">Simpan</button>
                     <input type="hidden" name="id" value={idNum} />
-                    <input type="hidden" name="aksi" value="ubah_status" />
+                    <input type="hidden" name="aksi" value="status" />
                 </form>
             </div>
         </div>

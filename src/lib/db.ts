@@ -82,18 +82,8 @@ export async function execute(
     return res as mysql.ResultSetHeader;
 }
 
-/** Ambil satu nilai kolom tunggal (mis. COUNT, SUM, satu kolom). */
-export async function scalar<T = number>(
-    sql: string,
-    params: unknown[] = [],
-): Promise<T | null> {
-    const row = await queryOne<Record<string, T>>(sql, params);
-    if (!row) {
-        return null;
-    }
-    const keys = Object.keys(row);
-    return keys.length > 0 ? row[keys[0]] : null;
-}
+
+
 
 /**
  * Jalankan sekumpulan operasi dalam satu transaksi.

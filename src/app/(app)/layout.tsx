@@ -1,7 +1,7 @@
 import { harusMasuk } from "@/lib/sesi";
+import { Suspense } from "react";
 import { pathPermintaan } from "@/lib/path";
 import { metaRute } from "@/config/rute";
-import { jejakMenu } from "@/config/menu";
 import type { Metadata } from "next";
 import { ambilFlash } from "@/lib/flash-server";
 import { roleBoleh } from "@/lib/akses";
@@ -13,6 +13,7 @@ import { ModalKonfirmasi } from "@/components/modal-konfirmasi";
 import { BackdropSeluler } from "@/components/backdrop-seluler";
 import { SkripShell } from "@/components/skrip-shell";
 import { SkripMuat, SKRIP_INTI } from "@/components/skrip-muat";
+import { NavigasiProgres } from "@/components/navigasi-progres";
 import { WidgetAsisten } from "@/components/widget-asisten";
 
 /*
@@ -30,9 +31,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LayoutAplikasi({ children }: { children: React.ReactNode }) {
     const user = await harusMasuk();
-    const path = await pathPermintaan();
-    const meta = metaRute(path);
-    const jejak = jejakMenu(meta.menu);
     const flash = await ambilFlash();
 
     return (
@@ -42,13 +40,16 @@ export default async function LayoutAplikasi({ children }: { children: React.Rea
 
             <a className="lewati" href="#konten-utama">Lewati ke konten utama</a>
 
+            {/* useSearchParams butuh Suspense; fallback null = bilah tak terlihat saat init */}
+            <Suspense fallback={null}>
+                <NavigasiProgres />
+            </Suspense>
+
             <div className="app">
-                <Sidebar menuAktif={meta.menu} nama={user.nama} role={user.role} />
+                <Sidebar nama={user.nama} role={user.role} />
 
                 <main className="content" id="konten-utama" tabIndex={-1}>
                     <Topbar
-                        jejak={jejak}
-                        judulAwal={meta.judul}
                         nama={user.nama}
                         bolehTulisPesanan={roleBoleh(user.role, "pesanan.tulis")}
                         tanggal={hariPanjang()}
@@ -64,7 +65,7 @@ export default async function LayoutAplikasi({ children }: { children: React.Rea
             <ModalKonfirmasi />
             <WidgetAsisten role={user.role} />
 
-            <SkripMuat daftar={SKRIP_INTI} />
+            <SkripMuat daftar={SKRIP_INTI} sekali />
         </>
     );
 }

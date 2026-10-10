@@ -150,6 +150,12 @@
 .kal-sel.isi    { color: var(--on-primary); }
 .kal-sel.manual { color: #1a1410; }
 
+/* Sentuh (pointer: coarse): sel naik ke 32px supaya ketukan akurat —
+   puluhan kolom × 18px tidak bisa dijepit jari di HP. Desktop tetap 18px. */
+@media (pointer: coarse) {
+    .kal-sel { min-height: 32px; line-height: 32px; padding: 0 8px; }
+}
+
 /* Legenda warna: satu baris ringkas di bawah form cari. */
 .kal-legenda-baris { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 2px 0 4px; font-size: 12px; color: var(--ink-soft); }
 .kal-legenda { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ink-soft); }

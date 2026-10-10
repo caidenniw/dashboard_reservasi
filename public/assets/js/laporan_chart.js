@@ -7,7 +7,13 @@
 (function () {
     var blok = document.getElementById('dataGrafikLaporan');
     var kanvas = document.getElementById('grafikLaporan');
-    if (!blok || !kanvas || typeof Chart === 'undefined') { return; }
+    if (!blok || !kanvas) { return; }
+    if (typeof Chart === 'undefined') {
+        /* Pustaka gagal dimuat — jangan biarkan kanvas kosong diam-diam. */
+        var judulErr = document.getElementById('grafikLaporanJudul');
+        if (judulErr) { judulErr.textContent = 'Grafik tidak dapat dimuat (Chart.js gagal dimuat). Muat ulang halaman.'; }
+        return;
+    }
 
     var data;
     try { data = JSON.parse(blok.textContent || '{}'); } catch (e) { return; }
@@ -34,7 +40,6 @@
     var model = 'bar';
     var grafik = null;
 
-    function rupiah(n) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(Number(n) || 0); }
     function ringkas(n) {
         n = Number(n) || 0;
         if (n >= 1000000000) { return (n / 1000000000).toFixed(1) + ' M'; }
@@ -44,6 +49,20 @@
     }
 
     function isiTerpilih() { return data[sumber] || []; }
+
+    /* Sinkronkan kelas .active + aria-pressed semua tombol dengan state kini. */
+    function sinkronTombol() {
+        document.querySelectorAll('[data-grafik-sumber]').forEach(function (x) {
+            var on = x.getAttribute('data-grafik-sumber') === sumber;
+            x.classList.toggle('active', on);
+            x.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-grafik-model]').forEach(function (x) {
+            var on = x.getAttribute('data-grafik-model') === model;
+            x.classList.toggle('active', on);
+            x.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
 
     function gambar() {
         var isi = isiTerpilih();
@@ -71,9 +90,10 @@
                         label: function (item) {
                             var d = isi[item.dataIndex] || {};
                             var ket = 'Jumlah: ' + (d.jumlah !== undefined ? d.jumlah : '-');
+                            /* Format ikut sumbu (ringkas), bukan rupiah penuh — satu format angka. */
                             return labelModel[model] === 'Lingkaran'
-                                ? item.label + ': ' + rupiah(item.parsed)
-                                : labelSumber[sumber] + ': ' + rupiah(item.parsed.y !== undefined ? item.parsed.y : item.parsed) + ' | ' + ket;
+                                ? item.label + ': ' + ringkas(item.parsed)
+                                : labelSumber[sumber] + ': ' + ringkas(item.parsed.y !== undefined ? item.parsed.y : item.parsed) + ' | ' + ket;
                         }
                     }
                 }
@@ -115,21 +135,18 @@
         if (kosong) { kosong.style.display = isi.length ? 'none' : 'block'; }
         var judul = document.getElementById('grafikLaporanJudul');
         if (judul) { judul.textContent = labelSumber[sumber] + ' — model ' + labelModel[model]; }
+        sinkronTombol();
     }
 
     document.querySelectorAll('[data-grafik-sumber]').forEach(function (b) {
         b.addEventListener('click', function () {
             sumber = b.getAttribute('data-grafik-sumber');
-            document.querySelectorAll('[data-grafik-sumber]').forEach(function (x) { x.classList.remove('active'); });
-            b.classList.add('active');
             gambar();
         });
     });
     document.querySelectorAll('[data-grafik-model]').forEach(function (b) {
         b.addEventListener('click', function () {
             model = b.getAttribute('data-grafik-model');
-            document.querySelectorAll('[data-grafik-model]').forEach(function (x) { x.classList.remove('active'); });
-            b.classList.add('active');
             gambar();
         });
     });

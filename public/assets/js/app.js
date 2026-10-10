@@ -292,14 +292,44 @@ function rnSalin(idTeks, idTombol) {
         });
         return;
     }
-    if (batalBtn) { batalBtn.addEventListener('click', function () { modalEl.close(); }); }
-    var modal = { show: function () { modalEl.showModal(); }, hide: function () { modalEl.close(); } };
+    var pemicuSubmit = null;
+    var terkunciFokus = false;
+    function kunciFokus() {
+        if (terkunciFokus) return;
+        terkunciFokus = true;
+        modalEl.addEventListener('keydown', jebakFokus);
+    }
+    function lepasFokus() {
+        terkunciFokus = false;
+        modalEl.removeEventListener('keydown', jebakFokus);
+    }
+    function jebakFokus(ev) {
+        if (ev.key !== 'Tab') return;
+        var daftar = [batalBtn, yaBtn].filter(function (el) { return el && !el.disabled; });
+        if (daftar.length === 0) return;
+        var pertama = daftar[0];
+        var terakhir = daftar[daftar.length - 1];
+        if (ev.shiftKey && document.activeElement === pertama) { ev.preventDefault(); terakhir.focus(); return; }
+        if (!ev.shiftKey && document.activeElement === terakhir) { ev.preventDefault(); pertama.focus(); }
+    }
+    function kembalikanFokus() {
+        lepasFokus();
+        if (pemicuSubmit && document.contains(pemicuSubmit)) pemicuSubmit.focus();
+        pemicuSubmit = null;
+    }
+    if (batalBtn) { batalBtn.addEventListener('click', function () { formTertunda = null; modalEl.close(); kembalikanFokus(); }); }
+    // Escape native menutup <dialog> lewat event "cancel" — bersihkan formTertunda
+    // (kalau tidak, submit susulan bisa lolos tanpa konfirmasi).
+    modalEl.addEventListener('cancel', function () { formTertunda = null; kembalikanFokus(); });
+    modalEl.addEventListener('close', function () { lepasFokus(); });
+    var modal = { show: function () { modalEl.showModal(); kunciFokus(); if (batalBtn) batalBtn.focus(); }, hide: function () { modalEl.close(); } };
 
     document.addEventListener('submit', function (ev) {
         var f = ev.target;
         if (!f.dataset || !f.dataset.konfirmasi || f.dataset.lolosKonfirmasi === '1') return;
         ev.preventDefault();
         formTertunda = f;
+        pemicuSubmit = f.querySelector('button[type="submit"]') || document.activeElement;
         pesanEl.textContent = f.dataset.konfirmasi;
         // Judul + warna tombol ikut jenis aksi: hapus/batal = bahaya (merah), sisanya normal
         var tombolAsli = f.querySelector('button[type="submit"]');

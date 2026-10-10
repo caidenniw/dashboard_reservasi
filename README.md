@@ -61,7 +61,7 @@ ke samping.
 | Styling | **Tailwind CSS v4** sebagai mesin utility; token & komponen di `src/styles/` |
 | Database | **MySQL** — skema berasal dari sistem lama, diakses lewat `mysql2` |
 | Sesi | Cookie berisi JWT, ditandatangani `jose` (HMAC `APP_KEY`) |
-| Lain | `bcryptjs` (hash password), `zod` (validasi), `exceljs` (import Excel), `glob` |
+| Lain | `bcryptjs` (hash password), `exceljs` (import Excel) |
 | Font | Inter (self-host, `public/assets/fonts/`) |
 
 ### Aset lama dipakai ulang apa adanya
